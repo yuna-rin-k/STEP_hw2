@@ -59,13 +59,14 @@ def evaluate(tokens):
   while index < len(tokens):
     temp_result = 0
     op = tokens[index-1]['type']
+    #先に *, /　の処理
     if tokens[index]['type'] == 'NUMBER' and op != 'PLUS' and op != 'MINUS':
       y = tokens.pop(index)
       op = tokens.pop(index-1)
       x = tokens.pop(index-2)
       if x['type'] != 'NUMBER' or y['type'] != 'NUMBER':
         print('Wrong grammer') 
-        #exit(1)
+        exit(1)
       y = y['number']
       x = x['number']
       op = op['type']
@@ -145,8 +146,8 @@ def runTest():
   #test("-4.3/-1.4+1-1*2.0")
 
   #エラー
-  test("1++2")
-  #test("1*2//2")
+  #test("1++2")
+  test("1*2//2")
   print("==== Test finished! ====\n")
 
 runTest()
