@@ -50,16 +50,11 @@ def tokenize(line):
     tokens.append(token)
   return tokens
 
-
-def evaluate(tokens):
-  answer = 0
-  tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
+def mul_div(tokens):  
   index = 1
-
   while index < len(tokens):
     temp_result = 0
     op = tokens[index-1]['type']
-    #先に *, /　の処理
     if tokens[index]['type'] == 'NUMBER' and op != 'PLUS' and op != 'MINUS':
       y = tokens.pop(index)
       op = tokens.pop(index-1)
@@ -81,6 +76,10 @@ def evaluate(tokens):
         index = index-2
         tokens.insert(index, token)
     index += 1
+
+def add_sum(tokens):
+  answer = 0
+  tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
   index = 1
   while index < len(tokens):
     if tokens[index]['type'] == 'NUMBER':
@@ -97,6 +96,10 @@ def evaluate(tokens):
     index += 1
   return answer
 
+def evaluate(tokens):
+  mul_div(tokens)
+  answer = add_sum(tokens)
+  return answer
 
 def test(line):
   tokens = tokenize(line)
