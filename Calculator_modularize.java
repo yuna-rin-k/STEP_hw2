@@ -98,7 +98,6 @@ public class Calculator_modularize {
 				removeIndex++;
 			}
 		}
-		if (tokensHasNo_MULT_DIV.size() == 0) return tokens;
 		return tokensHasNo_MULT_DIV;
 	}
 
