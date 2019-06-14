@@ -2,55 +2,54 @@ import java.util.*;
 
 public class Calculator_modularize {
 
-	static ArrayList<Token> tokensHasParens = new ArrayList<>();
-	static String line;
-	static int lineIndex;
-	static int indexOfToken = 0;
-	static int indexOfTokenInsideParens = 0;
-	static double answer;
-
 	public static void main(String[] arga) {
 		Scanner sc = new Scanner(System.in);
-		line = sc.next();
-		tokenize(line);
-		removeParents(tokensHasParens);
+		String line = sc.next();
+		ArrayList<Token> tokens = tokenize(line);
+		double answer = evaluate(tokens);
 		System.out.println(line + "=" + answer);
 	}
 
-	static void tokenize(String line) {
-		lineIndex = 0;
+	static ArrayList<Token> tokenize(String line) {
+		ArrayList<Token> tokens = new ArrayList<>();
+		int lineIndex = 0;
 		while (lineIndex < line.length()) {
 			char c = line.charAt(lineIndex);
-			if (isDigit(c)) readNumber();
-			else if (c == '+') readPlus();
-			else if (c == '-') readMinus();
-			else if (c == '*') readMult();
-			else if (c == '/') readDiv();
-			else if (c == '(') readOpenParen();
-			else if (c == ')') readCloseParen();
+			if (isDigit(c))  lineIndex = readNumber(line, lineIndex, tokens);
+			else if (c == '+') lineIndex = readPlus(line, lineIndex, tokens);
+			else if (c == '-') lineIndex = readMinus(line, lineIndex, tokens);
+			else if (c == '*') lineIndex = readMult(line, lineIndex, tokens);
+			else if (c == '/') lineIndex = readDiv(line, lineIndex, tokens);
+			else if (c == '(') lineIndex = readOpenParen(line, lineIndex, tokens);
+			else if (c == ')') lineIndex = readCloseParen(line, lineIndex, tokens);
 			else {
 				System.out.println("Invalid character found:" + c);
 				System.exit(1);
 			}
 		}
+		return tokens;
 	}
-	static double evaluate(ArrayList<Token> tokensHasNoParens) {
+
+	static double evaluate(ArrayList<Token> tokens) {
+		return evaluateParenExpr(tokens);
+	}
+
+	static double evaluateNoParenExpr(ArrayList<Token> tokensHasNoParens) {
 		ArrayList<Token> tokensHasNo_MULT_DIV = mul_div(tokensHasNoParens);
-		answer = add_sub(tokensHasNo_MULT_DIV);
+		double answer = add_sub(tokensHasNo_MULT_DIV);
 		Token token = new Token("NUMBER", answer);
 		tokensHasNoParens.add(token);
 		return answer;
 	}
 
-
-	static double removeParents(ArrayList<Token> tokens) {
+	static double evaluateParenExpr(ArrayList<Token> tokens) {
 		int indexOfToken = 0;
 		ArrayList<Token> tokensHasNoParens = new ArrayList<Token>();
 		ArrayList<Token> tokensInsideParens = new ArrayList<>();
 		while (indexOfToken < tokens.size()) {
 			String type = tokens.get(indexOfToken).type;
 			if (type.equals("OPEN_PAREN")) {
-				indexOfTokenInsideParens = indexOfToken+1;
+				int indexOfTokenInsideParens = indexOfToken+1;
 				int parenCount = 1;
 				while (indexOfToken < tokens.size()) {
 					indexOfToken++;
@@ -60,7 +59,7 @@ public class Calculator_modularize {
 					if (parenCount == 0) break;
 					tokensInsideParens.add(tokens.get(indexOfToken));
 				}
-				double resultInside = removeParents(tokensInsideParens);
+				double resultInside = evaluateParenExpr(tokensInsideParens);
 				Token token = new Token("NUMBER", resultInside);
 				tokensHasNoParens.add(token);
 			} else {
@@ -68,7 +67,7 @@ public class Calculator_modularize {
 			}
 			indexOfToken++;
 		}
-		return evaluate(tokensHasNoParens);
+		return evaluateNoParenExpr(tokensHasNoParens);
 	}
 
 	static ArrayList<Token> mul_div(ArrayList<Token> tokens) {
@@ -120,7 +119,7 @@ public class Calculator_modularize {
 		}
 		return answer;
 	}
-	static double readNumber() {
+	static int readNumber(String line, int lineIndex, ArrayList<Token> tokens) {
 		double num = 0.0;
 		char c = line.charAt(lineIndex);
 		while (lineIndex < line.length() && isDigit(c)) {
@@ -144,44 +143,50 @@ public class Calculator_modularize {
 			num /= Math.pow(10, keta);
 		}
 		Token token = new Token("NUMBER", num);
-		tokensHasParens.add(token);
-		return num;
+		tokens.add(token);
+		return lineIndex;
 	}
 
-	static void readPlus() {
+	static int readPlus(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("PLUS", -1);
-		tokensHasParens.add(token);
+		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readMinus() {
+	static int readMinus(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("MINUS", -1);
-		tokensHasParens.add(token);
+		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readMult() {
+	static int readMult(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("MULT", -1);
-		tokensHasParens.add(token);
+		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readDiv() {
+	static int readDiv(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("DIV", -1);
-		tokensHasParens.add(token);
+		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readOpenParen() {
+	static int readOpenParen(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("OPEN_PAREN", -1);
-		tokensHasParens.add(token);
+		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readCloseParen() {
+	static int readCloseParen(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("CLOSE_PAREN", -1);
-		tokensHasParens.add(token);
+		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 	static boolean isDigit(char c) {
 		return c >= '0' && c <= '9';
