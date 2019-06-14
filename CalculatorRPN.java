@@ -2,63 +2,53 @@ import java.util.*;
 
 public class CalculatorRPN {
 
-	static ArrayList<Token> tokens = new ArrayList<>();
-	static Stack<Token> stackRPN = new Stack<>();
-	static String line;
-	static int lineIndex = 0;
-	static int indexOfToken = 0;
-
 	public static void main(String[] args) {
+
 		Scanner sc = new Scanner(System.in);
 		while (true) {
-			init();
-			line = sc.next();
+			Stack<Token> stackRPN = new Stack<>();
+			String line = sc.next();
 			if (line.equals("00")) break;
-			tokenize(line);
-			pushStack();
-			Token ansToken = evaluate();
+			ArrayList<Token> tokens = tokenize(line, 0);
+			pushStack(stackRPN, tokens, 0);
+			Token ansToken = evaluate(stackRPN);
 			double answer = ansToken.value;
 			System.out.println(line+"="+answer);
 		}
 	}
-	static void init() {
-		tokens.clear();
-		stackRPN.clear();
-		lineIndex = 0;
-		indexOfToken = 0;
-	}
 
-	static void tokenize(String line) {
-		lineIndex = 0;
+	static ArrayList<Token> tokenize(String line, int lineIndex) {
+		ArrayList<Token> tokens = new ArrayList<>();
 		while (lineIndex < line.length()) {
 			char c = line.charAt(lineIndex);
-			if (isDigit(c)) readNumber();
-			else if (c == '+') readPlus();
-			else if (c == '-') readMinus();
-			else if (c == '*') readMult();
-			else if (c == '/') readDiv();
-			else if (c == '(') readOpenParen();
-			else if (c == ')') readCloseParen();
+			if (isDigit(c)) lineIndex = readNumber(line, lineIndex, tokens);
+			else if (c == '+') lineIndex = readPlus(line, lineIndex, tokens);
+			else if (c == '-') lineIndex = readMinus(line, lineIndex, tokens);
+			else if (c == '*') lineIndex = readMult(line, lineIndex, tokens);
+			else if (c == '/') lineIndex = readDiv(line, lineIndex, tokens);
+			else if (c == '(') lineIndex = readOpenParen(line, lineIndex, tokens);
+			else if (c == ')') lineIndex = readCloseParen(line, lineIndex, tokens);
 			else {
 				System.out.println("Invalid character found:" + c);
 				System.exit(1);
 			}
 		}
+		return tokens;
 	}
 
-	static void pushStack() {
+	static int pushStack(Stack<Token> stackRPN, ArrayList<Token> tokens, int indexOfToken) {
 		Stack<Token> op = new Stack<>();
 		Token preOp;
 		while (indexOfToken < tokens.size()) {
 			Token token = tokens.get(indexOfToken);
 			if (token.type.equals("OPEN_PAREN")) {
 				indexOfToken++;
-				pushStack();
+				indexOfToken = pushStack(stackRPN, tokens, indexOfToken);
 			} else if (token.type.equals("CLOSE_PAREN")){
 				while (op.size()>0) {
 					stackRPN.push(op.pop());
 				}
-				return;
+				return indexOfToken;
 			} else if (token.type.equals("NUMBER")) {
 				stackRPN.push(token);
 			} else if ((token.type.equals("MULT") || token.type.equals("DIV")))	{
@@ -80,16 +70,17 @@ public class CalculatorRPN {
 		while (op.size()>0) {
 			stackRPN.push(op.pop());
 		}
+		return indexOfToken;
 	}
 
-	static Token evaluate() {
+	static Token evaluate(Stack<Token> stackRPN) {
 		Token result = new Token("dummy", -1);
 		Token token = stackRPN.pop();
 		Token tokenX = stackRPN.peek();
-		if (isOp(tokenX)) tokenX = evaluate();
+		if (isOp(tokenX)) tokenX = evaluate(stackRPN);
 		else tokenX = stackRPN.pop();
 		Token tokenY = stackRPN.peek();
-		if (isOp(tokenY)) tokenY = evaluate();
+		if (isOp(tokenY)) tokenY = evaluate(stackRPN);
 		else tokenY = stackRPN.pop();
 		double x = tokenX.value;
 		double y = tokenY.value;
@@ -100,7 +91,7 @@ public class CalculatorRPN {
 		return result;
 	}
 
-	static void readNumber() {
+	static int readNumber(String line, int lineIndex, ArrayList<Token> tokens) {
 		double num = 0.0;
 		char c = line.charAt(lineIndex);
 		while (lineIndex < line.length() && isDigit(c)) {
@@ -125,42 +116,49 @@ public class CalculatorRPN {
 		}
 		Token token = new Token("NUMBER", num);
 		tokens.add(token);
+		return lineIndex;
 	}
 
-	static void readPlus() {
+	static int readPlus(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("PLUS", -1);
 		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readMinus() {
+	static int readMinus(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("MINUS", -1);
 		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readMult() {
+	static int readMult(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("MULT", -1);
 		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readDiv() {
+	static int readDiv(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("DIV", -1);
 		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readOpenParen() {
+	static int readOpenParen(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("OPEN_PAREN", -1);
 		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
-	static void readCloseParen() {
+	static int readCloseParen(String line, int lineIndex, ArrayList<Token> tokens) {
 		Token token = new Token("CLOSE_PAREN", -1);
 		tokens.add(token);
 		lineIndex++;
+		return lineIndex;
 	}
 
 	static boolean isDigit(char c) {
