@@ -18,6 +18,7 @@ public class CalculatorRPN {
 	}
 
 	static ArrayList<Token> tokenize(String line, int lineIndex) {
+
 		ArrayList<Token> tokens = new ArrayList<>();
 		while (lineIndex < line.length()) {
 			char c = line.charAt(lineIndex);
@@ -36,7 +37,29 @@ public class CalculatorRPN {
 		return tokens;
 	}
 
+
+	/*
+	★逆ポーランド記法に順に変換するメソッド★
+	1+2 → 1 2 +
+	(2*(3*(7-4)+6)-1)/5　→　2 3 7 4 - * 6 + * 2 1 - 5 /	
+
+	[Stack類]
+	stackRPN　→　最終的にreturnするstack(みんな共通)
+	op(stack)　→　一時的に演算子を入れておくstack(再帰で呼び出された関数ごとのもの)
+
+	[stackにTokenをpushするときの手順]
+	numberがきたらstackRPNにpush
+	演算子がきたら
+		+, -  → opに * /　が入っていたら、それ(*,/)をstackRPNに移す(popしてpush)
+				そしてopを + - をpush
+				opに * / がなかったらそのままopにpush
+		*, /  → opに +, -　が入っていなかったらopにpush
+				opに　+, -　が入っていたらstackRPNにpush
+	閉じ括弧or最後まできたら、opにはいっているものを全てstackRPNにpush(opをリセットする)
+	開き括弧がきたら、再帰
+	*/
 	static int pushStack(Stack<Token> stackRPN, ArrayList<Token> tokens, int indexOfToken) {
+
 		Stack<Token> op = new Stack<>();
 		Token preOp;
 		while (indexOfToken < tokens.size()) {
@@ -66,14 +89,18 @@ public class CalculatorRPN {
 			}
 			indexOfToken++;
 		}
-		int size = op.size();
 		while (op.size()>0) {
 			stackRPN.push(op.pop());
 		}
 		return indexOfToken;
 	}
 
+	/*
+	2つ取り出して計算
+	取り出したものが演算子だったら再帰
+	*/
 	static Token evaluate(Stack<Token> stackRPN) {
+
 		Token result = new Token("dummy", -1);
 		Token token = stackRPN.pop();
 		Token tokenX = stackRPN.peek();
@@ -92,6 +119,7 @@ public class CalculatorRPN {
 	}
 
 	static int readNumber(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		double num = 0.0;
 		char c = line.charAt(lineIndex);
 		while (lineIndex < line.length() && isDigit(c)) {
@@ -120,6 +148,7 @@ public class CalculatorRPN {
 	}
 
 	static int readPlus(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		Token token = new Token("PLUS", -1);
 		tokens.add(token);
 		lineIndex++;
@@ -127,6 +156,7 @@ public class CalculatorRPN {
 	}
 
 	static int readMinus(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		Token token = new Token("MINUS", -1);
 		tokens.add(token);
 		lineIndex++;
@@ -134,6 +164,7 @@ public class CalculatorRPN {
 	}
 
 	static int readMult(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		Token token = new Token("MULT", -1);
 		tokens.add(token);
 		lineIndex++;
@@ -141,6 +172,7 @@ public class CalculatorRPN {
 	}
 
 	static int readDiv(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		Token token = new Token("DIV", -1);
 		tokens.add(token);
 		lineIndex++;
@@ -148,6 +180,7 @@ public class CalculatorRPN {
 	}
 
 	static int readOpenParen(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		Token token = new Token("OPEN_PAREN", -1);
 		tokens.add(token);
 		lineIndex++;
@@ -155,6 +188,7 @@ public class CalculatorRPN {
 	}
 
 	static int readCloseParen(String line, int lineIndex, ArrayList<Token> tokens) {
+
 		Token token = new Token("CLOSE_PAREN", -1);
 		tokens.add(token);
 		lineIndex++;
@@ -162,18 +196,22 @@ public class CalculatorRPN {
 	}
 
 	static boolean isDigit(char c) {
+
 		return c >= '0' && c <= '9';
 	}
 
 	static boolean isOp(Token token) {
+
 		return token.type.equals("PLUS") || token.type.equals("MINUS") ||
 				token.type.equals("MULT") || token.type.equals("DIV") ;
 	}
 	static double changeToDouble(char c) {
+
 		return c - '0';
 	}
 
 	static class Token {
+
 		String type;
 		double value;
 		public Token(String type, double value) {
