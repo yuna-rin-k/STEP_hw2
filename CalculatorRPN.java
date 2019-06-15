@@ -40,7 +40,6 @@ public class CalculatorRPN {
 	static int pushStack(Stack<Token> stackRPN, ArrayList<Token> tokens, int indexOfToken) {
 
 		Stack<Token> op = new Stack<>();
-		Token preOp;
 		while (indexOfToken < tokens.size()) {
 			Token token = tokens.get(indexOfToken);
 			if (token.type.equals("OPEN_PAREN")) {
@@ -57,7 +56,7 @@ public class CalculatorRPN {
 				op.push(token);
 			} else if ((token.type.equals("PLUS") || token.type.equals("MINUS"))){
 				if (op.size() > 0) {
-					preOp = op.peek();
+					Token preOp = op.peek();
 					if ((preOp.type.equals("MULT") || preOp.type.equals("DIV"))) {
 						stackRPN.push(op.pop());
 					} 
@@ -76,7 +75,6 @@ public class CalculatorRPN {
 
 	static Token evaluate(Stack<Token> stackRPN) {
 
-		Token result = new Token("dummy", -1);
 		Token token = stackRPN.pop();
 		Token tokenX = stackRPN.peek();
 		if (isOp(tokenX)) tokenX = evaluate(stackRPN);
@@ -86,6 +84,7 @@ public class CalculatorRPN {
 		else tokenY = stackRPN.pop();
 		double x = tokenX.value;
 		double y = tokenY.value;
+		Token result = null;
 		if (token.type.equals("PLUS")) result = new Token("NUMBER", x+y);
 		else if (token.type.equals("MINUS")) result = new Token("NUMBER", y-x);
 		else if (token.type.equals("MULT")) result = new Token("NUMBER", x*y);
