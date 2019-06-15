@@ -37,27 +37,6 @@ public class CalculatorRPN {
 		return tokens;
 	}
 
-
-	/*
-	★逆ポーランド記法に順に変換するメソッド★
-	1+2 → 1 2 +
-	(2*(3*(7-4)+6)-1)/5　→　2 3 7 4 - * 6 + * 2 1 - 5 /	
-
-	[Stack類]
-	stackRPN　→　最終的にreturnするstack(みんな共通)
-	op(stack)　→　一時的に演算子を入れておくstack(再帰で呼び出された関数ごとのもの)
-
-	[stackにTokenをpushするときの手順]
-	numberがきたらstackRPNにpush
-	演算子がきたら
-		+, -  → opに * /　が入っていたら、それ(*,/)をstackRPNに移す(popしてpush)
-				そしてopを + - をpush
-				opに * / がなかったらそのままopにpush
-		*, /  → opに +, -　が入っていなかったらopにpush
-				opに　+, -　が入っていたらstackRPNにpush
-	閉じ括弧or最後まできたら、opにはいっているものを全てstackRPNにpush(opをリセットする)
-	開き括弧がきたら、再帰
-	*/
 	static int pushStack(Stack<Token> stackRPN, ArrayList<Token> tokens, int indexOfToken) {
 
 		Stack<Token> op = new Stack<>();
@@ -95,10 +74,6 @@ public class CalculatorRPN {
 		return indexOfToken;
 	}
 
-	/*
-	2つ取り出して計算
-	取り出したものが演算子だったら再帰
-	*/
 	static Token evaluate(Stack<Token> stackRPN) {
 
 		Token result = new Token("dummy", -1);
