@@ -70,6 +70,10 @@ public class CalculatorRPN {
 		while (op.size()>0) {
 			stackRPN.push(op.pop());
 		}
+		if (stackRPN.size() == 1) {
+			stackRPN.push(new Token("NUMBER",0));
+			stackRPN.push(new Token("PLUS",-1));
+		}
 		return indexOfToken;
 	}
 
