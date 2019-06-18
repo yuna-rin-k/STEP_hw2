@@ -9,6 +9,7 @@ public class CalculatorRPN {
 			Stack<Token> stackRPN = new Stack<>();
 			String line = sc.next();
 			if (line.equals("00")) break;
+			if (!CheckError(line)) continue;
 			ArrayList<Token> tokens = tokenize(line, 0);
 			pushStack(stackRPN, tokens, 0);
 			Token ansToken = evaluate(stackRPN);
@@ -197,4 +198,38 @@ public class CalculatorRPN {
 			this.value = value;
 		}
 	}	
+
+	static boolean CheckError(String line) {
+
+		int openParenCount = 0;
+		int index = 0;
+		boolean isOperator = false;
+
+		while (index < line.length()) {
+
+			char c = line.charAt(index);
+			if (isDigit(c)) {
+				isOperator = false;
+			} else if (c == '+' || c == '-' || c == '*' || c == '/') {
+				if (isOperator) {
+					System.out.println("wrong grammer for operator");
+					return false;
+				}
+				isOperator = true;
+			} else if (c == '(') {
+				openParenCount++;
+				isOperator = false;
+			} else if (c == ')') {
+				openParenCount--;
+				if (openParenCount < 0) {
+					System.out.println("wrong grammer for '()'");
+					return false;
+				}
+				isOperator = false;
+			}
+			index++;
+		}
+		if (openParenCount != 0) return false;
+		return true;
+	}
 }
