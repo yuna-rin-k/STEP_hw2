@@ -199,6 +199,11 @@ public class CalculatorRPN {
 		}
 	}	
 
+	// ((2)) OK
+	// ((2)  NG
+	// (2))  NG
+	//  2)	 NG
+	//  演算子が2つ以上続く NG
 	static boolean CheckError(String line) {
 
 		int openParenCount = 0;
