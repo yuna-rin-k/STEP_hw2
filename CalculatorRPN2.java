@@ -99,10 +99,7 @@ public class CalculatorRPN2 {
 					break;
 				} 
 			} else if (token.type.equals("CLOSE_PAREN")){
-				while (op.size()>0) {
-					stackRPN.push(op.pop());
-				}
-				return indexOfToken;
+				break;
 			} else if (token.type.equals("NUMBER")) {
 				stackRPN.push(token);
 			} else if (op.size() == 0){
