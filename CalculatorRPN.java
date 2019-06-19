@@ -1,26 +1,48 @@
+//こっちではなくCalculatorRPN2.javaが正しいプログラム		
+import java.io.*;
 import java.util.*;
 
 public class CalculatorRPN {
 
 	public static void main(String[] args) {
 
-		Scanner sc = new Scanner(System.in);
-		while (true) {
-			Stack<Token> stackRPN = new Stack<>();
-			String line = sc.next();
-			if (line.equals("00")) break;
-			if (!CheckError(line)) continue;
-			ArrayList<Token> tokens = tokenize(line, 0);
-			pushStack(stackRPN, tokens, 0);
-			Token ansToken = evaluate(stackRPN);
-			double answer = ansToken.value;
-			System.out.println(line+"="+answer);
+		Scanner testData = null;
+		Scanner ansData = null;
+
+		try{
+			testData = new Scanner(new File("testExpression.txt"));
+			ansData = new Scanner(new File("testAnswer.txt"));
+
+			while (testData.hasNext()) {
+
+				Stack<Token> stackRPN = new Stack<>();
+				String line = testData.next();
+				if (line.equals("00")) break;
+				if (!CheckError(line)) continue;
+				ArrayList<Token> tokens = tokenize(line, 0);
+				pushStack(stackRPN, tokens, 0);
+				Token ansToken = evaluate(stackRPN);
+				double answer = ansToken.value;
+				double trueAns = Double.parseDouble(ansData.next());
+				if (answer == trueAns) System.out.println("Pass: "+line+"="+answer);
+				else System.out.println("Wrong answer: "+ line+"="+answer + " ("+ trueAns + ")");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			testData.close();
+			ansData.close();
 		}
 	}
 
 	static ArrayList<Token> tokenize(String line, int lineIndex) {
 
 		ArrayList<Token> tokens = new ArrayList<>();
+		if (line.charAt(0) == '-') {
+			tokens.add(new Token("NUMBER", 0.0));
+			lineIndex++;
+		}
+
 		while (lineIndex < line.length()) {
 			char c = line.charAt(lineIndex);
 			if (isDigit(c)) lineIndex = readNumber(line, lineIndex, tokens);
